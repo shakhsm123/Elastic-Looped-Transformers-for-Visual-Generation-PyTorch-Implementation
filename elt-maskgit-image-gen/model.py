@@ -6,7 +6,7 @@ from typing import Optional
 
 @dataclass(frozen=True)
 class ELTConfig:
-# architeccture params
+  # architeccture params
   d_model: int=512
   n_heads: int=8
   d_ff : int=2048
@@ -14,33 +14,26 @@ class ELTConfig:
   n_unique_layers: int=4
   max_seq_len: int=256
   vocab_size: int=1025
-# loop params
+  # loop params
   L_max: int=4
   L_min: int=1
-# distillation params
+  # distillation params
   lambda_start: float=1.0
   lambda_end : float=0.0
-# training params
+  # training params
   batch_size: int=64
   lr : float=1e-4
   weight_decay: float=4.5e-2
   warmup_steps: int=15000
   total_epochs: int=270
   label_drop_prob: float=0.1
-# inference params
+  # inference params
   sampling_steps: int=24
   cfg_scale: float=3.0
   @property
   def mask_token_id(self):
     return self.vocab_size - 1
-cfg =cfg = ELTConfig(
-    d_model=768,
-    n_heads=12,
-    d_ff=3072,
-    n_unique_layers=3,   # 3 × 4 = 12 effective depth
-    L_max=4,
-    batch_size=128,
-)
+
 
 
 class LearnedPositionalEmbedding(nn.Module):
