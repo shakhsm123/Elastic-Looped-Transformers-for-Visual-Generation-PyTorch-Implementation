@@ -9,9 +9,8 @@ import torchvision.transforms as transforms
 
 from model import ELTConfig, ELTModel, MLMHead
 from tokenizer import load_tokenizer
-from dataset import TokenDataset, CachedTokenDataset, random_masking
+from dataset import TokenDataset, CachedTokenDataset, random_masking, ImageNet100Dataset
 from losses import ILSD_train_step
-from dataset import ImageNet100Dataset
 
 def main():
   LOCAL_RANK=int(os.environ.get("LOCAL_RANK"))
@@ -29,7 +28,7 @@ def main():
     d_ff=3072,
     n_unique_layers=3,
     L_max=4,
-    batch_size=64,
+    batch_size=32,
   )
     
   token_cache = "/media/gpuhead-1/gpu-head-1-2nd/imagenet100_tokens_train.pt"
