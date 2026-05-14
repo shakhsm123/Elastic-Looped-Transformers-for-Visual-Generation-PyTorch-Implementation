@@ -32,7 +32,8 @@ def main():
     batch_size=64,
   )
     
-  token_cache = "imagenette_tokens_train.pt"
+  token_cache = "/media/gpuhead-1/gpu-head-1-2nd/imagenet100_tokens_train.pt"
+
 
   if RANK == 0:
       if not os.path.exists(token_cache):
