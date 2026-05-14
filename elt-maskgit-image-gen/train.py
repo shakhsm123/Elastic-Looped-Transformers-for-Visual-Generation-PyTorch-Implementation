@@ -11,6 +11,7 @@ from model import ELTConfig, ELTModel, MLMHead
 from tokenizer import load_tokenizer
 from dataset import TokenDataset, CachedTokenDataset, random_masking
 from losses import ILSD_train_step
+from dataset import ImageNet100Dataset
 
 def main():
   LOCAL_RANK=int(os.environ.get("LOCAL_RANK"))
@@ -44,8 +45,8 @@ def main():
               transforms.ToTensor(),
               transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
           ])
-          train_dataset = torchvision.datasets.ImageFolder(
-              "imagenette2-320/train",
+          train_dataset = ImageNet100Dataset(
+              "/media/gpuhead-1/gpu-head-1-2nd/imagenet100/data",
               transform=train_transforms
           )
           token_dataset = TokenDataset(train_dataset, vqgan, device)
