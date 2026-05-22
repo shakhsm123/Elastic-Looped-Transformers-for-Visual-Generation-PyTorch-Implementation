@@ -17,18 +17,18 @@ class NoiseScheduler:
 
     def add_noise(self, x0, t, epsilon):
         t_cpu = t.cpu()
-        sqrt_ab = self.sqrt_alpha_bars[t].reshape(-1, 1, 1, 1).to(x0.device)
-        sqrt_omab = self.sqrt_one_minus_alpha_bars[t].reshape(-1, 1, 1, 1).to(x0.device)
+        sqrt_ab = self.sqrt_alpha_bars[t_cpu].reshape(-1, 1, 1, 1).to(x0.device)
+        sqrt_omab = self.sqrt_one_minus_alpha_bars[t_cpu].reshape(-1, 1, 1, 1).to(x0.device)
         x_t = sqrt_ab * x0 + sqrt_omab * epsilon
         return x_t
 
     def remove_noise(self, x_t, t, predicted_epsilon):
         t_cpu = t if isinstance(t, int) else t.cpu()
-        recip = self.sqrt_recip_alphas[t].to(x_t.device)
-        beta = self.betas[t].to(x_t.device)
-        sqrt_omab = self.sqrt_one_minus_alpha_bars[t].to(x_t.device)
+        recip = self.sqrt_recip_alphas[t_cpu].to(x_t.device)
+        beta = self.betas[t_cpu].to(x_t.device)
+        sqrt_omab = self.sqrt_one_minus_alpha_bars[t_cpu].to(x_t.device)
         x_previous = recip * (x_t - beta / sqrt_omab * predicted_epsilon)
-        if t > 0:
+        if t_cpu > 0:
             x_previous += torch.sqrt(beta) * torch.randn_like(x_t)
         return x_previous
 
