@@ -16,12 +16,14 @@ class NoiseScheduler:
         self.sqrt_recip_alphas = torch.sqrt(1 / self.alphas)
 
     def add_noise(self, x0, t, epsilon):
+        t_cpu = t.cpu()
         sqrt_ab = self.sqrt_alpha_bars[t].reshape(-1, 1, 1, 1).to(x0.device)
         sqrt_omab = self.sqrt_one_minus_alpha_bars[t].reshape(-1, 1, 1, 1).to(x0.device)
         x_t = sqrt_ab * x0 + sqrt_omab * epsilon
         return x_t
 
     def remove_noise(self, x_t, t, predicted_epsilon):
+        t_cpu = t if isinstance(t, int) else t.cpu()
         recip = self.sqrt_recip_alphas[t].to(x_t.device)
         beta = self.betas[t].to(x_t.device)
         sqrt_omab = self.sqrt_one_minus_alpha_bars[t].to(x_t.device)
