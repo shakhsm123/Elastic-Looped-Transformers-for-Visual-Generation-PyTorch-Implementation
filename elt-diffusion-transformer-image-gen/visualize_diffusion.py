@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
+plt.show = lambda: None
+
 from diffusion_model import DiffusionELTConfig, ELT_DiT
 from diffusion_inference import NoiseScheduler, ddpm_generate, diffusion_any_time_inference
 from vae import load_vae
@@ -31,4 +33,5 @@ noise_scheduler = NoiseScheduler(dcfg)
 
 diffusion_any_time_inference(model, noise_scheduler, dcfg, vae, device)
 plt.savefig('generated_diffusion.png', dpi=150, bbox_inches='tight')
+plt.close()
 print("saved to generated_diffusion.png")
