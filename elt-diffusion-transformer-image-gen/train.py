@@ -31,7 +31,7 @@ def main():
     d_ff=3072,
     n_unique_layers=3,
     L_max=4,
-    batch_size=32,
+    batch_size=16,
   )
     
   latent_cache = "/home/gpuhead-1/datasets/imagenet100_latents_train.pt"
