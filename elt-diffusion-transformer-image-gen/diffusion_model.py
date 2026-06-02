@@ -109,7 +109,7 @@ class TransformerBlock(nn.Module):
     self.ffn_dropout=nn.Dropout(cfg.dropout)
   def forward(self, x, padding_mask=None):
     output=self.layer_norm(x)
-    output, attention_weights=self.attn(output,output,output, key_padding_mask=padding_mask)
+    output, _=self.attn(output,output,output, key_padding_mask=padding_mask)
     output=self.ffn_dropout(output)
     x=x+output
     output=self.layer_norm2(x)
