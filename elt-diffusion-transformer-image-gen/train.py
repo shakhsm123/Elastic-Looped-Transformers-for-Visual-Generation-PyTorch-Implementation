@@ -83,6 +83,8 @@ def main():
     weight_decay=dcfg.weight_decay,
     betas=(0.9, 0.96)
   )
+
+  scaler = torch.cuda.amp.GradScaler()
   noise_scheduler=NoiseScheduler(dcfg)
   def warmup_fn(step):
       if step < dcfg.warmup_steps:
