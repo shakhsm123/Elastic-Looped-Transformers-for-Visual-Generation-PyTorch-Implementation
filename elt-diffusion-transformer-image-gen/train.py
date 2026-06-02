@@ -19,6 +19,7 @@ def main():
   torch.backends.cuda.matmul.allow_tf32 = True
   torch.backends.cudnn.allow_tf32 = True
   torch.set_float32_matmul_precision("high")
+  
   LOCAL_RANK=int(os.environ.get("LOCAL_RANK"))
   RANK=int(os.environ.get("RANK"))
   WORLD_SIZE=int(os.environ.get("WORLD_SIZE"))
@@ -84,7 +85,8 @@ def main():
     list(model.parameters()),
     lr=dcfg.lr,
     weight_decay=dcfg.weight_decay,
-    betas=(0.9, 0.96)
+    betas=(0.9, 0.96),
+    fused=True
   )
 
   scaler = torch.cuda.amp.GradScaler()
