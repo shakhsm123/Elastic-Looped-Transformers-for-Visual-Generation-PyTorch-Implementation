@@ -16,6 +16,9 @@ from diffusion_dataset import ImageNet100Dataset, LatentDataset, CachedLatentDat
 from vae import load_vae
 
 def main():
+  torch.backends.cuda.matmul.allow_tf32 = True
+  torch.backends.cudnn.allow_tf32 = True
+  torch.set_float32_matmul_precision("high")
   LOCAL_RANK=int(os.environ.get("LOCAL_RANK"))
   RANK=int(os.environ.get("RANK"))
   WORLD_SIZE=int(os.environ.get("WORLD_SIZE"))
