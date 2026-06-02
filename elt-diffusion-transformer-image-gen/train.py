@@ -80,10 +80,7 @@ def main():
   )
   model=ELT_DiT(dcfg).to(device)
   
-  model = torch.compile(
-    model,
-    mode="max-autotune"
-  )
+  model = torch.compile(model)
   
   model = DDP(model, device_ids=[LOCAL_RANK])
   
