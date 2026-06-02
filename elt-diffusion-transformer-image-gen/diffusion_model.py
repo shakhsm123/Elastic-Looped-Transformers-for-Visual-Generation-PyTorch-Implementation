@@ -99,7 +99,12 @@ class TransformerBlock(nn.Module):
   def __init__(self, cfg: DiffusionELTConfig):
     super().__init__()
     self.layer_norm=nn.LayerNorm(cfg.d_model)
-    self.attn=nn.MultiheadAttention(cfg.d_model, cfg.n_heads, batch_first=True, dropout=cfg.dropout)
+    self.qkv = nn.Linear(cfg.d_model, 3 * cfg.d_model)
+    self.out_proj = nn.Linear(cfg.d_model, cfg.d_model)
+
+    self.n_heads = cfg.n_heads
+    self.head_dim = cfg.d_model // cfg.n_heads
+    #self.attn=nn.MultiheadAttention(cfg.d_model, cfg.n_heads, batch_first=True, dropout=cfg.dropout)
     self.layer_norm2=nn.LayerNorm(cfg.d_model)
     self.ffn=nn.Sequential(
         nn.Linear(cfg.d_model, cfg.d_ff),
@@ -108,14 +113,32 @@ class TransformerBlock(nn.Module):
     )
     self.ffn_dropout=nn.Dropout(cfg.dropout)
   def forward(self, x, padding_mask=None):
-    output=self.layer_norm(x)
-    output, _=self.attn(output,output,output, key_padding_mask=padding_mask)
-    output=self.ffn_dropout(output)
-    x=x+output
-    output=self.layer_norm2(x)
-    output=self.ffn(output)
-    output=self.ffn_dropout(output)
-    x=x+output
+    output = self.layer_norm(x)
+
+    B, N, C = output.shape
+
+    qkv = self.qkv(output)
+    q, k, v = qkv.chunk(3, dim=-1)
+
+    q = q.view(B, N, self.n_heads, self.head_dim).transpose(1, 2)
+    k = k.view(B, N, self.n_heads, self.head_dim).transpose(1, 2)
+    v = v.view(B, N, self.n_heads, self.head_dim).transpose(1, 2)
+
+    attn_output = F.scaled_dot_product_attention(
+        q,
+        k,
+        v,
+        dropout_p=self.ffn_dropout.p if self.training else 0.0,
+        is_causal=False
+    )
+
+    attn_output = attn_output.transpose(1, 2).reshape(B, N, C)
+
+    attn_output = self.out_proj(attn_output)
+
+    attn_output = self.ffn_dropout(attn_output)
+
+    x = x + attn_output
     return x
 
 class ELT_DiT(nn.Module):
