@@ -101,7 +101,7 @@ class TransformerBlock(nn.Module):
     self.layer_norm=nn.LayerNorm(cfg.d_model)
     self.qkv = nn.Linear(cfg.d_model, 3 * cfg.d_model)
     self.out_proj = nn.Linear(cfg.d_model, cfg.d_model)
-
+    
     self.n_heads = cfg.n_heads
     self.head_dim = cfg.d_model // cfg.n_heads
     #self.attn=nn.MultiheadAttention(cfg.d_model, cfg.n_heads, batch_first=True, dropout=cfg.dropout)
@@ -111,6 +111,7 @@ class TransformerBlock(nn.Module):
         nn.GELU(),
         nn.Linear(cfg.d_ff, cfg.d_model)
     )
+    self.attn_dropout = cfg.dropout
     self.ffn_dropout=nn.Dropout(cfg.dropout)
   def forward(self, x, padding_mask=None):
     output = self.layer_norm(x)
@@ -128,17 +129,28 @@ class TransformerBlock(nn.Module):
         q,
         k,
         v,
-        dropout_p=self.ffn_dropout.p if self.training else 0.0,
+        dropout_p=self.attn_dropout_p if self.training else 0.0,
         is_causal=False
     )
 
-    attn_output = attn_output.transpose(1, 2).reshape(B, N, C)
-
+    #attn_output = attn_output.transpose(1, 2).reshape(B, N, C)
+    attn_output = (
+      attn_output
+      .transpose(1, 2)
+      .contiguous()
+      .view(B, N, C)
+    )
     attn_output = self.out_proj(attn_output)
 
     attn_output = self.ffn_dropout(attn_output)
-
+    
     x = x + attn_output
+
+    output=self.layer_norm2(x)
+    output=self.ffn(output)
+    output=self.ffn_dropout(output)
+    x=x+output
+    
     return x
 
 class ELT_DiT(nn.Module):
