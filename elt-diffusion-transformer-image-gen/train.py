@@ -109,12 +109,23 @@ def main():
       lambda_val=1.0-(global_step/total_steps)
       lambda_val=max(0.0, lambda_val)
 
-      loss_total, L_int=diff_ILSD_train_step(model, x_t, t, epsilon, lambda_val, dcfg)
-      optimizer.zero_grad()
-      loss_total.backward()
-      optimizer.step()
-      scheduler.step()
+      
+      optimizer.zero_grad(set_to_none=True)
 
+      with torch.cuda.amp.autocast(dtype=torch.float16):
+        loss_total, L_int = diff_ILSD_train_step(
+          model,
+          x_t,
+          t,
+          epsilon,
+          lambda_val,
+          dcfg
+      )
+
+      scaler.scale(loss_total).backward()
+      scaler.step(optimizer)
+      scaler.update()
+      scheduler.step()
       global_step+=1
 
       if RANK == 0 and global_step % 100==0:
