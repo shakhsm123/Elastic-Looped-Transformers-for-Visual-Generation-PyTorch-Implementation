@@ -129,7 +129,7 @@ class TransformerBlock(nn.Module):
         q,
         k,
         v,
-        dropout_p=self.attn_dropout_p if self.training else 0.0,
+        dropout_p=self.attn_dropout if self.training else 0.0,
         is_causal=False
     )
 
