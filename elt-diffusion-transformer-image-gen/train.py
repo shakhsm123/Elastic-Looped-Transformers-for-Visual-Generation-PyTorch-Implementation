@@ -79,6 +79,12 @@ def main():
       pin_memory=True
   )
   model=ELT_DiT(dcfg).to(device)
+  
+  model = torch.compile(
+    model,
+    mode="max-autotune"
+  )
+  
   model = DDP(model, device_ids=[LOCAL_RANK])
   
   optimizer = torch.optim.AdamW(
